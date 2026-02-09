@@ -64,9 +64,9 @@ class CV(models.Model):
     skills: models.TextField = models.TextField(blank=True, help_text="Candidate's skills in comma-separated values")
     diploma: models.TextField = models.TextField(blank=True, help_text="Candidate's diplomas")
     diploma_ranking: models.IntegerField = models.IntegerField(blank=True, null=True)
-    certifications: models.JSONField = models.JSONField(blank=True)
+    certifications: models.JSONField = models.JSONField(blank=True, null=True)
     year_experience: models.IntegerField = models.IntegerField(blank=True, null=True)
-    experiences: models.JSONField = models.JSONField(blank=True, help_text="Candidate's summarized experiences")
+    experiences: models.JSONField = models.JSONField(blank=True, null=True, help_text="Candidate's summarized experiences")
     languages: models.TextField = models.TextField(blank=True, help_text="Candidate's languages")
     raw_text: models.TextField = models.TextField(blank=True, null=True)
 

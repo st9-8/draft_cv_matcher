@@ -26,9 +26,26 @@ class JobOfferSerializer(serializers.ModelSerializer):
 class CVSerializer(serializers.ModelSerializer):
     class Meta:
         model = CV
-        fields = ['title', 'file', 'uploaded_at', 'updated_at', 'uploaded_at',
-                  'updated_at', 'name', 'website', 'phone_number', 'email', 'description', 'skills', 'diploma',
-                  'diploma_ranking', 'certifications', 'year_experience', 'experiences', 'languages', 'raw_text', ]
+        fields = [
+            'id',
+            'title',
+            'file',
+            'uploaded_at',
+            'updated_at',
+            'name',
+            'website',
+            'phone_number',
+            'email',
+            'description',
+            'skills',
+            'diploma',
+            'diploma_ranking',
+            'certifications',
+            'year_experience',
+            'experiences',
+            'languages',
+            'raw_text',
+        ]
         read_only_fields = (
             'uploaded_at',
             'updated_at',

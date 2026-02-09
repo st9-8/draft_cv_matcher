@@ -10,7 +10,6 @@ from langchain_community.chat_models import ChatOllama
 
 from matching.models import CV
 from matching.models import JobOffer
-from matching.models import CVMatching
 
 from matching.extractor import Extractor
 
@@ -111,7 +110,7 @@ class GlobalScorer:
         if self.extractor.diploma_ranking >= self.offer.required_diploma_ranking:
             return 100.0
 
-        return (self.extractor.diploma_ranking / self.offer.required_diploma) * 100.0
+        return (self.extractor.diploma_ranking / self.offer.required_diploma_ranking) * 100.0
 
     def compute_deterministic_score(self):
         experience_score = self._score_experience()
