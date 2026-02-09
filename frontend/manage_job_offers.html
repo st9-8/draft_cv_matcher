@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Match – Manage Job Offers</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">CV Match – Job Offers</a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-light btn-sm" href="manage_cvs.html">Manage CVs</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container pb-5">
+    <div id="alert-container"></div>
+
+    <section class="mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Create Job Offer</strong>
+            </div>
+            <div class="card-body">
+                <form id="create-offer-form" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-title">Title</label>
+                        <input required type="text" class="form-control" id="create-title" name="title">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-company">Company Name</label>
+                        <input required type="text" class="form-control" id="create-company" name="company_name">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-location">Location</label>
+                        <input required type="text" class="form-control" id="create-location" name="location">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-start-date">Start Date</label>
+                        <input type="date" class="form-control" id="create-start-date" name="start_date">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-contract">Contract Type</label>
+                        <select required class="form-select" id="create-contract" name="contract_type">
+                            <option value="">Select…</option>
+                            <option value="LONG_TERM">Long Term</option>
+                            <option value="SHORT_TERM">Short Term</option>
+                            <option value="FREELANCE">Freelance</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-work">Work Type</label>
+                        <select required class="form-select" id="create-work" name="work_type">
+                            <option value="">Select…</option>
+                            <option value="ON_SITE">On site</option>
+                            <option value="HYBRID">Hybrid</option>
+                            <option value="REMOTE">Remote</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-skills">Required Skills (comma separated)</label>
+                        <textarea required class="form-control" id="create-skills" rows="2" name="required_skills"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-languages">Required Languages</label>
+                        <input required type="text" class="form-control" id="create-languages" name="required_languages">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-diploma">Required Diploma</label>
+                        <input required type="text" class="form-control" id="create-diploma" name="required_diploma">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-diploma-ranking">Required Diploma Ranking</label>
+                        <input type="number" min="0" max="10" class="form-control" id="create-diploma-ranking"
+                               name="required_diploma_ranking">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="create-experience">Required Experience (years)</label>
+                        <input required type="number" min="0" class="form-control" id="create-experience"
+                               name="required_experience">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="create-description">Description</label>
+                        <textarea required class="form-control" id="create-description" rows="3" name="description"></textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Create Offer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Update Job Offer</strong>
+            </div>
+            <div class="card-body">
+                <form id="update-offer-form" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label" for="update-id">Offer ID</label>
+                        <input required type="number" min="1" class="form-control" id="update-id">
+                    </div>
+                    <div class="col-md-9">
+                        <label class="form-label" for="update-title">New Title</label>
+                        <input type="text" class="form-control" id="update-title" placeholder="Leave blank to skip">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="update-description">Description</label>
+                        <textarea class="form-control" rows="2" id="update-description"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="update-skills">Required Skills</label>
+                        <textarea class="form-control" rows="2" id="update-skills"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="update-experience">Required Experience</label>
+                        <input type="number" min="0" class="form-control" id="update-experience">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="update-languages">Required Languages</label>
+                        <input type="text" class="form-control" id="update-languages">
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-warning">Apply Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">Job Offers</h5>
+            <button id="refresh-offers" class="btn btn-outline-secondary btn-sm">Refresh</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="offer-table-body"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script src="config.js"></script>
+<script>
+    const API_BASE = window.CV_MATCH_CONFIG?.apiBaseUrl ?? '/api';
+    const alertContainer = document.getElementById('alert-container');
+    const offerTableBody = document.getElementById('offer-table-body');
+
+    function showAlert(message, type = 'success', timeout = 4000) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.role = 'alert';
+        alert.textContent = message;
+        alert.innerHTML += '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        alertContainer.appendChild(alert);
+        if (timeout) {
+            setTimeout(() => alert.remove(), timeout);
+        }
+    }
+
+    async function fetchJSON(url, options = {}) {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || 'Request failed');
+        }
+        return response.headers.get('content-type')?.includes('application/json')
+            ? response.json()
+            : response.text();
+    }
+
+    function formToJSON(form) {
+        const data = Object.fromEntries(new FormData(form));
+        Object.keys(data).forEach((key) => {
+            if (data[key] === '') {
+                delete data[key];
+            }
+        });
+        if (data.required_experience) data.required_experience = Number(data.required_experience);
+        if (data.required_diploma_ranking) data.required_diploma_ranking = Number(data.required_diploma_ranking);
+        return data;
+    }
+
+    async function loadOffers() {
+        offerTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Loading…</td></tr>';
+        try {
+            const data = await fetchJSON(`${API_BASE}/job_offers/`);
+            const rows = data.results || [];
+            if (!rows.length) {
+                offerTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No offers found.</td></tr>';
+                return;
+            }
+            offerTableBody.innerHTML = rows.map(offer => `
+                <tr>
+                    <td>${offer.id}</td>
+                    <td>${offer.title}</td>
+                    <td>${offer.company_name}</td>
+                    <td>${offer.location}</td>
+                    <td>${new Date(offer.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteOffer(${offer.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            offerTableBody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Unable to load offers.</td></tr>';
+            showAlert(err.message, 'danger');
+        }
+    }
+
+    async function deleteOffer(id) {
+        if (!confirm('Delete this offer?')) return;
+        try {
+            await fetchJSON(`${API_BASE}/job_offers/${id}/`, {method: 'DELETE'});
+            showAlert('Job offer deleted');
+            await loadOffers();
+        } catch (err) {
+            showAlert(err.message, 'danger');
+        }
+    }
+
+    document.getElementById('create-offer-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.target;
+        const payload = formToJSON(form);
+        try {
+            await fetchJSON(`${API_BASE}/job_offers/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            form.reset();
+            showAlert('Job offer created');
+            await loadOffers();
+        } catch (err) {
+            showAlert(err.message, 'danger');
+        }
+    });
+
+    document.getElementById('update-offer-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const id = document.getElementById('update-id').value;
+        if (!id) return;
+
+        const payload = {
+            title: document.getElementById('update-title').value.trim(),
+            description: document.getElementById('update-description').value.trim(),
+            required_skills: document.getElementById('update-skills').value.trim(),
+            required_experience: document.getElementById('update-experience').value.trim(),
+            required_languages: document.getElementById('update-languages').value.trim(),
+        };
+
+        Object.keys(payload).forEach((key) => {
+            if (!payload[key]) delete payload[key];
+        });
+
+        if (!Object.keys(payload).length) {
+            showAlert('Provide at least one field to update.', 'warning');
+            return;
+        }
+
+        if (payload.required_experience !== undefined) {
+            payload.required_experience = Number(payload.required_experience);
+        }
+
+        try {
+            await fetchJSON(`${API_BASE}/job_offers/${id}/`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            event.target.reset();
+            showAlert('Job offer updated');
+            await loadOffers();
+        } catch (err) {
+            showAlert(err.message, 'danger');
+        }
+    });
+
+    document.getElementById('refresh-offers').addEventListener('click', loadOffers);
+
+    loadOffers();
+</script>
+</body>
+</html>
