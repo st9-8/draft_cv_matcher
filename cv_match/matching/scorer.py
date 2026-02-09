@@ -96,7 +96,7 @@ class GlobalScorer:
 
         matches = required_skills.intersection(candidate_skills)
 
-        return (len(matches) / len(candidate_skills)) * 100.0
+        return 0 if not candidate_skills else (len(matches) / len(candidate_skills)) * 100.0
 
     def _score_diploma(self) -> float:
         """
@@ -107,7 +107,8 @@ class GlobalScorer:
             - Rule of 3 if lest than required diploma
         """
 
-        if self.extractor.diploma_ranking >= self.offer.required_diploma_ranking:
+        required_diploma_ranking = self.offer.required_diploma_ranking if self.offer.required_diploma_ranking else 0
+        if self.extractor.diploma_ranking >= required_diploma_ranking:
             return 100.0
 
         return (self.extractor.diploma_ranking / self.offer.required_diploma_ranking) * 100.0
@@ -130,6 +131,10 @@ class GlobalScorer:
         """
 
         self.compute_deterministic_score()
+
+        if not self.llm:
+            # Considering that there is no llm has been charged
+            return 0.0, {}
 
         structured_llm = self.llm.with_structured_output(ScoringData)
 
