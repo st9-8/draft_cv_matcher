@@ -76,13 +76,17 @@
             </div>
             <div class="card-body">
                 <form id="score-cv-form" class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label" for="score-cv-id">CV ID</label>
-                        <input required type="number" min="1" class="form-control" id="score-cv-id">
+                    <div class="col-md-5">
+                        <label class="form-label" for="score-cv-select">Select CV</label>
+                        <select required class="form-select" id="score-cv-select">
+                            <option value="">Loading…</option>
+                        </select>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label" for="score-offer-id">Job Offer ID</label>
-                        <input required type="number" min="1" class="form-control" id="score-offer-id">
+                    <div class="col-md-5">
+                        <label class="form-label" for="score-offer-select">Select Job Offer</label>
+                        <select required class="form-select" id="score-offer-select">
+                            <option value="">Loading…</option>
+                        </select>
                     </div>
                     <div class="col-12 text-end">
                         <button type="submit" class="btn btn-success">Calculate Score</button>
@@ -133,15 +137,60 @@
         }
     }
 
+    function formatErrorPayload(payload) {
+        if (!payload) return 'Request failed';
+        if (typeof payload === 'string') {
+            const trimmed = payload.trim();
+            const looksLikeJson = (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+                (trimmed.startsWith('[') && trimmed.endsWith(']'));
+            if (looksLikeJson) {
+                try {
+                    return formatErrorPayload(JSON.parse(trimmed));
+                } catch (error) {
+                    try {
+                        const normalized = trimmed
+                            .replace(/([{,]\s*)'([^']+?)'\s*:/g, '$1"$2":')
+                            .replace(/:\s*'([^']+?)'\s*(?=[,}])/g, ':"$1"');
+                        return formatErrorPayload(JSON.parse(normalized));
+                    } catch (inner) {
+                        // Fall through to pseudo parsing below.
+                    }
+                }
+            }
+
+            const pseudo = trimmed.match(/^\{\s*['"]?error['"]?\s*:\s*['"]?(.+?)['"]?\s*\}$/i);
+            if (pseudo) {
+                return pseudo[1];
+            }
+
+            return trimmed;
+        }
+        if (Array.isArray(payload)) return payload.join(', ');
+        if (typeof payload === 'object') {
+            return Object.entries(payload).map(([key, value]) => {
+                const label = key === 'non_field_errors' ? '' : `${key}: `;
+                if (Array.isArray(value)) {
+                    return `${label}${value.join(', ')}`;
+                }
+                if (value && typeof value === 'object') {
+                    return `${label}${JSON.stringify(value)}`;
+                }
+                return `${label}${value}`;
+            }).join('\n');
+        }
+        return 'Request failed';
+    }
+
     async function fetchJSON(url, options = {}) {
         const response = await fetch(url, options);
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const payload = isJson ? await response.json() : await response.text();
+
         if (!response.ok) {
-            const text = await response.text();
-            throw new Error(text || 'Request failed');
+            throw new Error(formatErrorPayload(payload));
         }
-        return response.headers.get('content-type')?.includes('application/json')
-            ? response.json()
-            : response.text();
+
+        return payload;
     }
 
     async function loadCVs() {
@@ -149,6 +198,7 @@
         try {
             const data = await fetchJSON(`${API_BASE}/cvs/`);
             const rows = data.results || [];
+            populateCvChoices(rows);
             if (!rows.length) {
                 cvTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No CVs yet.</td></tr>';
                 return;
@@ -165,6 +215,36 @@
             `).join('');
         } catch (err) {
             cvTableBody.innerHTML = '<tr><td colspan="4" class="text-danger text-center">Unable to load data.</td></tr>';
+            showAlert(err.message, 'danger');
+        }
+    }
+
+    function populateCvChoices(items) {
+        const select = document.getElementById('score-cv-select');
+        select.innerHTML = '<option value="">Select a CV…</option>';
+        items.forEach((cv) => {
+            const option = document.createElement('option');
+            option.value = cv.id;
+            option.textContent = `${cv.title} (#${cv.id})`;
+            select.appendChild(option);
+        });
+    }
+
+    async function loadJobOffersForScore() {
+        const select = document.getElementById('score-offer-select');
+        select.innerHTML = '<option value="">Loading…</option>';
+        try {
+            const data = await fetchJSON(`${API_BASE}/job_offers/`);
+            const offers = data.results || [];
+            select.innerHTML = '<option value="">Select a job offer…</option>';
+            offers.forEach((offer) => {
+                const option = document.createElement('option');
+                option.value = offer.id;
+                option.textContent = `${offer.title} · ${offer.company_name}`;
+                select.appendChild(option);
+            });
+        } catch (err) {
+            select.innerHTML = '<option value="">Unable to load job offers</option>';
             showAlert(err.message, 'danger');
         }
     }
@@ -231,12 +311,23 @@
 
     document.getElementById('score-cv-form').addEventListener('submit', async (event) => {
         event.preventDefault();
-        const cvId = document.getElementById('score-cv-id').value;
-        const jobOfferId = document.getElementById('score-offer-id').value;
+        const cvId = document.getElementById('score-cv-select').value;
+        const jobOfferId = document.getElementById('score-offer-select').value;
+
+        if (!cvId || !jobOfferId) {
+            resultContainer.innerHTML = '';
+            showAlert('Please select both a CV and a job offer.', 'warning');
+            return;
+        }
         const resultContainer = document.getElementById('score-result');
         resultContainer.innerHTML = '<div class="text-muted">Processing…</div>';
         try {
-            const payload = {job_offer_id: Number(jobOfferId)};
+            const jobOfferNumericId = Number.parseInt(jobOfferId, 10);
+            if (Number.isNaN(jobOfferNumericId)) {
+                throw new Error('Invalid job offer identifier selected.');
+            }
+
+            const payload = {job_offer_id: jobOfferNumericId};
             const data = await fetchJSON(`${API_BASE}/cvs/${cvId}/score_job_offer/`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -260,6 +351,7 @@
     document.getElementById('refresh-cvs').addEventListener('click', loadCVs);
 
     loadCVs();
+    loadJobOffersForScore();
 </script>
 </body>
 </html>

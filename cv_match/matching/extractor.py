@@ -9,8 +9,8 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_community.chat_models import ChatOllama
 
+import mammoth
 import pdfplumber
-from docx import Document
 from traceback_with_variables import format_exc
 
 from matching.models import CV
@@ -61,15 +61,18 @@ class Extractor(object):
             This function returns the raw text from the CV
         """
         cv_path = Path(self.cv.file.path)
+        raw_text = ''
 
         if cv_path.suffix in ['.docx', '.doc', '.DOCX', '.DOC']:
-            return self._extract_raw_docx()
+            raw_text = self._extract_raw_docx()
         elif cv_path.suffix in ['.pdf', '.PDF']:
-            return self._extract_raw_pdf()
+            raw_text = self._extract_raw_pdf()
         else:
             logger.warning(f'Unsupported file type: {cv_path.suffix}')
+        if not raw_text:
+            raise ValueError(f'Sorry we were unable to extract anything from this CV')
 
-            return ''
+        return raw_text
 
     def _extract_raw_pdf(self) -> str:
         """
@@ -90,9 +93,13 @@ class Extractor(object):
         """
             This function returns the raw text from a Word CV
         """
-        doc = Document(self.cv.file.path)
+        with open(self.cv.file.path, 'rb') as docx_file:
+            result = mammoth.extract_raw_text(docx_file)
+            raw_text = result.value.strip()
 
-        return '\n'.join([paragraph.text for paragraph in doc.paragraphs]).strip()
+        logger.info(f'Raw text from Docx ({len(raw_text)} chars): {raw_text[:200]}...')
+
+        return raw_text
 
     def semantic_extract(self):
         """

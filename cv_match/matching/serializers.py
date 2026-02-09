@@ -3,7 +3,8 @@ import logging
 
 from django.utils import timezone
 
-from rest_framework import serializers
+from rest_framework.response import Response
+from rest_framework import serializers, status
 
 from traceback_with_variables import format_exc
 
@@ -18,9 +19,25 @@ logger = logging.getLogger(__name__)
 class JobOfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobOffer
-        fields = ['title', 'description', 'required_skills', 'company_name', 'location', 'start_date',
-                  'required_languages', 'required_diploma', 'required_diploma_ranking', 'required_experience',
-                  'contract_type', 'work_type', 'created_at', 'updated_at', 'expires_at', 'is_expired']
+        fields = [
+            'id',
+            'title',
+            'description',
+            'required_skills',
+            'company_name',
+            'location',
+            'start_date',
+            'required_languages',
+            'required_diploma',
+            'required_diploma_ranking',
+            'required_experience',
+            'contract_type',
+            'work_type',
+            'created_at',
+            'updated_at',
+            'expires_at',
+            'is_expired',
+        ]
 
 
 class CVSerializer(serializers.ModelSerializer):
@@ -115,15 +132,15 @@ class CVScoreSerializer(serializers.Serializer):
         try:
             scorer = GlobalScorer(offer=job_offer, cv=cv)
             score_value, score_details = scorer.compute_score()
-        except Exception as exc:
-            logger.error(format_exc(exc))
-            raise serializers.ValidationError({'non_field_errors': ['Unable to compute score.']}) from exc
+        except Exception as e:
+            logger.error(format_exc(e))
+            raise Response({'error': f'Unable to compute score due to: {e}'}, status=status.HTTP_400_BAD_REQUEST) from e
 
         try:
             serialized_details = json.dumps(score_details)
-        except (TypeError, ValueError) as exc:
-            logger.error(format_exc(exc))
-            raise serializers.ValidationError({'non_field_errors': ['Unable to serialize score details.']}) from exc
+        except (TypeError, ValueError) as e:
+            logger.error(format_exc(e))
+            return Response({'error': 'Unable to serialize score details.'}, status=status.HTTP_400_BAD_REQUEST)
 
         evaluation_time = timezone.now()
         matching, _ = CVMatching.objects.update_or_create(
