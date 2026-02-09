@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework',
+    'drf_spectacular',
+    'django_filters',
+
     'matching',
 ]
 
@@ -127,3 +131,63 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EXTRACTION_MODEL_PROVIDER = os.getenv('EXTRACTION_MODEL_PROVIDER')
 EXTRACTION_MODEL = os.getenv('EXTRACTION_MODEL')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'common_bases.pagination.PaginationWithTotalPage',
+    'PAGE_SIZE': 100,
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'CV Match API',
+    'DESCRIPTION': 'Programmatic access to CV/job offer matching features.',
+    'VERSION': '1.0.0',
+}
+
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'default_file': {
+            'class': 'logging.FileHandler',
+            'level': 'INFO',
+            'filename': LOG_DIR / 'default.log',
+            'formatter': 'verbose',
+        },
+        'error_file': {
+            'class': 'logging.FileHandler',
+            'level': 'ERROR',
+            'filename': LOG_DIR / 'error.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s - %(message)s',
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['default_file', 'error_file', 'console'],
+            'level': 'INFO',
+        },
+        'django': {
+            'handlers': ['default_file', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

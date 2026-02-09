@@ -10,6 +10,7 @@ from langchain_community.chat_models import ChatOllama
 
 from matching.models import CV
 from matching.models import JobOffer
+from matching.models import CVMatching
 
 from matching.extractor import Extractor
 
@@ -59,6 +60,8 @@ class GlobalScorer:
             'job_fit': 0.20,
         }
 
+        logger.info(f'Loaded global extractor with weights: {self.weights}')
+
     def _score_experience(self) -> float:
         """
             Score the candidate experience comparing to the offer required experience
@@ -89,8 +92,8 @@ class GlobalScorer:
         candidate_skills = {skill.lower() for skill in self.extractor.skills}
         required_skills = {skill.strip().lower() for skill in self.offer.required_skills.split(',')}
 
-        print(f'Candidate skills: {candidate_skills}')
-        print(f'Required skills: {required_skills}')
+        logger.info(f'Candidate skills: {candidate_skills}')
+        logger.info(f'Required skills: {required_skills}')
 
         matches = required_skills.intersection(candidate_skills)
 
@@ -120,11 +123,14 @@ class GlobalScorer:
             'skill_score': skill_score,
             'diploma_score': diploma_score
         }
+        logger.info(f'Computed deterministic score: {self.deterministic_score}')
 
     def compute_score(self) -> Tuple[float, Dict]:
         """
             Compute final score on the candidate by using the deterministic and the LLM power
         """
+
+        self.compute_deterministic_score()
 
         structured_llm = self.llm.with_structured_output(ScoringData)
 
@@ -169,6 +175,7 @@ class GlobalScorer:
         job_requirements = self.offer.to_dict()
         candidate_data = self.extractor.to_dict()
 
+        logger.info('Computing the final score...')
         result = structured_llm.invoke(prompt.format(
             job_requirements=job_requirements,
             candidate_data=candidate_data,
@@ -179,5 +186,8 @@ class GlobalScorer:
         global_score = self.weights['experience'] * results.get('experience') + self.weights['skills'] * results.get(
             'skills') + self.weights['education'] * results.get('education') + self.weights['languages'] * results.get(
             'languages') + self.weights['job_fit'] * results['job_fit']
+
+        logger.info(f'Computation completed with the result: {global_score}/100')
+        logger.info(f'See details below:\n {results}')
 
         return global_score, results

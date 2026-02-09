@@ -64,9 +64,9 @@ class CV(models.Model):
     skills: models.TextField = models.TextField(blank=True, help_text="Candidate's skills in comma-separated values")
     diploma: models.TextField = models.TextField(blank=True, help_text="Candidate's diplomas")
     diploma_ranking: models.IntegerField = models.IntegerField(blank=True, null=True)
-    certifications: models.TextField = models.TextField(blank=True)
+    certifications: models.JSONField = models.JSONField(blank=True)
     year_experience: models.IntegerField = models.IntegerField(blank=True, null=True)
-    experiences: models.TextField = models.TextField(blank=True, help_text="Candidate's summarized experiences")
+    experiences: models.JSONField = models.JSONField(blank=True, help_text="Candidate's summarized experiences")
     languages: models.TextField = models.TextField(blank=True, help_text="Candidate's languages")
     raw_text: models.TextField = models.TextField(blank=True, null=True)
 
@@ -83,7 +83,7 @@ class CVMatching(models.Model):
     cv: models.ForeignKey = models.ForeignKey(CV, on_delete=models.CASCADE, related_name='matchings')
     evaluated_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     score: models.FloatField = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    score_description: models.TextField = models.TextField()
+    score_description: models.JSONField = models.JSONField()
 
     def __str__(self):
         return f'{self.cv} scored {self.score} on Job offer {self.job_offer}'

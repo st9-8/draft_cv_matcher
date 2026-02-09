@@ -192,12 +192,13 @@ Raw CV text:
         self.cv.phone_number = self.phone_number
         self.cv.email = self.email
         self.cv.description = self.description
-        self.cv.skills = self.skills
+        self.cv.skills = ', '.join(self.skills)
         self.cv.diploma = self.diploma
         self.cv.diploma_ranking = self.diploma_ranking
         self.cv.year_experience = self.year_experience
         self.cv.experiences = self.experiences
-        self.cv.languages = self.languages
+        self.cv.languages = ', '.join(self.languages)
         self.cv.certifications = self.certifications
+        self.cv.raw_text = self.raw_text
 
         self.cv.save()
